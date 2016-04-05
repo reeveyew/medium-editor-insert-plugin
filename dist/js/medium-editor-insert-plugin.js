@@ -1,5 +1,5 @@
 /*! 
- * medium-editor-insert-plugin v2.2.4 - jQuery insert plugin for MediumEditor
+ * medium-editor-insert-plugin v2.2.2 - jQuery insert plugin for MediumEditor
  *
  * https://github.com/orthes/medium-editor-insert-plugin
  * 
@@ -89,9 +89,9 @@ this["MediumInsert"]["Templates"]["src/js/templates/images-image.hbs"] = Handleb
 
   return "<figure contenteditable=\"false\">\n    <img src=\""
     + container.escapeExpression(((helper = (helper = helpers.img || (depth0 != null ? depth0.img : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(alias1,{"name":"img","hash":{},"data":data}) : helper)))
-    + "\" alt=\"\" />\n"
+    + "\" alt=\"\">\n"
     + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.progress : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + "</figure>\n";
+    + "</figure>";
 },"useData":true});
 
 this["MediumInsert"]["Templates"]["src/js/templates/images-progressbar.hbs"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
@@ -204,9 +204,10 @@ this["MediumInsert"]["Templates"]["src/js/templates/images-toolbar.hbs"] = Handl
             this.options.editor.destroy = this.editorDestroy;
             this.options.editor.setup = this.editorSetup;
 
-            if (this.options.editor.getExtensionByName('placeholder') !== undefined) {
-                this.options.editor.getExtensionByName('placeholder').updatePlaceholder = this.editorUpdatePlaceholder;
+            if (this.options.editor.getExtensionByName('placeholder')){
+              this.options.editor.getExtensionByName('placeholder').updatePlaceholder = this.editorUpdatePlaceholder;  
             }
+            
         }
     }
 
@@ -322,11 +323,11 @@ this["MediumInsert"]["Templates"]["src/js/templates/images-toolbar.hbs"] = Handl
      * @return {void}
      */
 
-    Core.prototype.editorUpdatePlaceholder = function (el, dontShow) {
+    Core.prototype.editorUpdatePlaceholder = function (el) {
         var contents = $(el).children()
             .not('.medium-insert-buttons').contents();
 
-        if (!dontShow && contents.length === 1 && contents[0].nodeName.toLowerCase() === 'br') {
+        if (contents.length === 1 && contents[0].nodeName.toLowerCase() === 'br') {
             this.showPlaceholder(el);
             this.base._hideInsertButtons($(el));
         } else {
@@ -434,7 +435,11 @@ this["MediumInsert"]["Templates"]["src/js/templates/images-toolbar.hbs"] = Handl
             return;
         }
 
-        if (this.$el.children().length === 0) {
+        // Fix #39
+        // After deleting all content (ctrl+A and delete) in Firefox, all content is deleted and only <br> appears
+        // To force placeholder to appear, set <p><br></p> as content of the $el
+
+        if (this.$el.html().trim() === '' || this.$el.html().trim() === '<br>') {
             this.$el.html(this.templates['src/js/templates/core-empty-line.hbs']().trim());
         }
 
@@ -443,7 +448,7 @@ this["MediumInsert"]["Templates"]["src/js/templates/images-toolbar.hbs"] = Handl
         $text = this.$el
             .contents()
             .filter(function () {
-                return (this.nodeName === '#text' && $.trim($(this).text()) !== '') || this.nodeName.toLowerCase() === 'br';
+                return this.nodeName === '#text' && $.trim($(this).text()) !== '';
             });
 
         $text.each(function () {
@@ -780,23 +785,23 @@ this["MediumInsert"]["Templates"]["src/js/templates/images-toolbar.hbs"] = Handl
             oembedProxy: 'http://medium.iframe.ly/api/oembed?iframe=1',
             captions: true,
             captionPlaceholder: 'Type caption (optional)',
-            styles: {
-                wide: {
-                    label: '<span class="fa fa-align-justify"></span>',
-                    // added: function ($el) {},
-                    // removed: function ($el) {}
-                },
-                left: {
-                    label: '<span class="fa fa-align-left"></span>',
-                    // added: function ($el) {},
-                    // removed: function ($el) {}
-                },
-                right: {
-                    label: '<span class="fa fa-align-right"></span>',
-                    // added: function ($el) {},
-                    // removed: function ($el) {}
-                }
-            },
+            // styles: {
+            //     wide: {
+            //         label: '<span class="fa fa-align-justify"></span>',
+            //         // added: function ($el) {},
+            //         // removed: function ($el) {}
+            //     },
+            //     left: {
+            //         label: '<span class="fa fa-align-left"></span>',
+            //         // added: function ($el) {},
+            //         // removed: function ($el) {}
+            //     },
+            //     right: {
+            //         label: '<span class="fa fa-align-right"></span>',
+            //         // added: function ($el) {},
+            //         // removed: function ($el) {}
+            //     }
+            // },
             actions: {
                 remove: {
                     label: '<span class="fa fa-times"></span>',
@@ -1429,21 +1434,24 @@ this["MediumInsert"]["Templates"]["src/js/templates/images-toolbar.hbs"] = Handl
             },
             fileDeleteOptions: {},
             styles: {
-                wide: {
-                    label: '<span class="fa fa-align-justify"></span>',
+                center: {
+                    label: '<span class="fa fa-align-center"></span>',
                     // added: function ($el) {},
                     // removed: function ($el) {}
                 },
-                left: {
-                    label: '<span class="fa fa-align-left"></span>',
-                    // added: function ($el) {},
-                    // removed: function ($el) {}
+                wide:{
+                  label: '<span class="fa fa-align-justify"></span>'
                 },
-                right: {
-                    label: '<span class="fa fa-align-right"></span>',
-                    // added: function ($el) {},
-                    // removed: function ($el) {}
-                },
+                // left: {
+                //     label: '<span class="fa fa-align-left"></span>',
+                //     // added: function ($el) {},
+                //     // removed: function ($el) {}
+                // },
+                // right: {
+                //     label: '<span class="fa fa-align-right"></span>',
+                //     // added: function ($el) {},
+                //     // removed: function ($el) {}
+                // },
                 grid: {
                     label: '<span class="fa fa-th"></span>',
                     // added: function ($el) {},
@@ -1624,8 +1632,8 @@ this["MediumInsert"]["Templates"]["src/js/templates/images-toolbar.hbs"] = Handl
             };
         }
 
+        // console.log($file);
         $file.fileupload($.extend(true, {}, this.options.fileUploadOptions, fileUploadOptions));
-
         $file.click();
     };
 
@@ -1639,6 +1647,7 @@ this["MediumInsert"]["Templates"]["src/js/templates/images-toolbar.hbs"] = Handl
      */
 
     Images.prototype.uploadAdd = function (e, data) {
+        console.log('SHOULD UPLOAD IMAGE')
         var $place = this.$el.find('.medium-insert-active'),
             that = this,
             uploadErrors = [],
@@ -1646,6 +1655,9 @@ this["MediumInsert"]["Templates"]["src/js/templates/images-toolbar.hbs"] = Handl
             acceptFileTypes = this.options.fileUploadOptions.acceptFileTypes,
             maxFileSize = this.options.fileUploadOptions.maxFileSize,
             reader;
+
+            // console.log(data);
+            // console.log(file);
 
         if (acceptFileTypes && !acceptFileTypes.test(file['type'])) {
             uploadErrors.push(this.options.messages.acceptFileTypesError + file['name']);
@@ -1684,6 +1696,7 @@ this["MediumInsert"]["Templates"]["src/js/templates/images-toolbar.hbs"] = Handl
 
                     reader.readAsDataURL(data.files[0]);
                 } else {
+                  console.log(data);
                     data.submit();
                 }
             });
@@ -1740,17 +1753,10 @@ this["MediumInsert"]["Templates"]["src/js/templates/images-toolbar.hbs"] = Handl
         }
     };
 
-    /**
-     * Callback for successful upload requests.
-     * https://github.com/blueimp/jQuery-File-Upload/wiki/Options#done
-     *
-     * @param {Event} e
-     * @param {object} data
-     * @return {void}
-     */
-
     Images.prototype.uploadDone = function (e, data) {
-        $.proxy(this, 'showImage', data.result.files[0].url, data)();
+      console.log("upload completed");
+        console.log(data);       
+        $.proxy(this, 'showImage', data.result.url, data)();
 
         this.core.clean();
         this.sorting();
@@ -1836,6 +1842,7 @@ this["MediumInsert"]["Templates"]["src/js/templates/images-toolbar.hbs"] = Handl
      */
 
     Images.prototype.selectImage = function (e) {
+      console.log("IMAGE IS SELECTED")
         if(this.core.options.enabled) {
             var $image = $(e.target),
                 that = this;
